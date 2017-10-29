@@ -51,7 +51,7 @@ def adam(loss, params, **kwargs):
     return lasagne.updates.adam(connected_grads, connected_params, **kwargs)
 
 def random_latents(num_latents, G_input_shape):
-    return np.random.randn(num_latents, *G_input_shape[1:]).astype(np.float32)
+    return np.random.randn(np.int32(num_latents), *G_input_shape[1:]).astype(np.float32)
 
 def random_labels(num_labels, training_set):
     return training_set.labels[np.random.randint(training_set.labels.shape[0], size=num_labels)]
@@ -232,8 +232,8 @@ def train_gan(
 
             # Optimize loss.
             G_loss, D_loss, real_scores_out, fake_scores_out = evaluate_loss(G, D, min_lod, max_lod, real_images_expr, real_labels_var, fake_latents_var, fake_labels_var, **config.loss)
-            G_updates = adam(G_loss, G.trainable_params(), learning_rate=G_lrate, beta1=adam_beta1, beta2=adam_beta2, epsilon=adam_epsilon).items()
-            D_updates = adam(D_loss, D.trainable_params(), learning_rate=D_lrate, beta1=adam_beta1, beta2=adam_beta2, epsilon=adam_epsilon).items()
+            G_updates = list(adam(G_loss, G.trainable_params(), learning_rate=G_lrate, beta1=adam_beta1, beta2=adam_beta2, epsilon=adam_epsilon).items())
+            D_updates = list(adam(D_loss, D.trainable_params(), learning_rate=D_lrate, beta1=adam_beta1, beta2=adam_beta2, epsilon=adam_epsilon).items())
 
             # Compile training funcs.
             if not separate_funcs:

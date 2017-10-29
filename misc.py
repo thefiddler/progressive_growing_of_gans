@@ -48,10 +48,10 @@ def create_image_grid(images, grid_size=None):
         grid_w = max(int(np.ceil(np.sqrt(num))), 1)
         grid_h = max((num - 1) / grid_w + 1, 1)
 
-    grid = np.zeros(list(images.shape[1:-2]) + [grid_h * img_h, grid_w * img_w], dtype=images.dtype)
+    grid = np.zeros(list(images.shape[1:-2]) + [np.int32(grid_h * img_h), np.int32(grid_w * img_w)], dtype=images.dtype)
     for idx in range(num):
-        x = (idx % grid_w) * img_w
-        y = (idx / grid_w) * img_h
+        x = np.int32((idx % grid_w) * img_w)
+        y = np.int32((idx // grid_w) * img_h)
         grid[..., y : y + img_h, x : x + img_w] = images[idx]
     return grid
 
@@ -195,7 +195,7 @@ def create_result_subdir(result_dir, run_desc):
     try:
         import config
         with open(os.path.join(result_subdir, 'config.txt'), 'wt') as fout:
-            for k, v in sorted(config.__dict__.iteritems()):
+            for k, v in sorted(config.__dict__.items()):
                 if not k.startswith('_'):
                     fout.write("%s = %s\n" % (k, str(v)))
     except:

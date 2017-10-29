@@ -97,13 +97,13 @@ class Network(object):
         return lasagne.layers.get_all_params(self.output_layers, trainable=True)
 
     def toplevel_params(self): # returns dict(name=shared)
-        return {name: value for name, value in self.__dict__.iteritems() if isinstance(value, theano.compile.SharedVariable)}
+        return {name: value for name, value in self.__dict__.items() if isinstance(value, theano.compile.SharedVariable)}
 
     def get_toplevel_param_values(self): # returns dict(name=value)
-        return {name: shared.get_value() for name, shared in self.toplevel_params().iteritems()}
+        return {name: shared.get_value() for name, shared in self.toplevel_params().items()}
 
     def set_toplevel_param_values(self, value_dict): # accepts dict(name=value)
-        for name, shared in self.toplevel_params().iteritems():
+        for name, shared in self.toplevel_params().items():
             if name in value_dict:
                 shared.set_value(value_dict[name])
 
@@ -230,7 +230,7 @@ def resize_activations(v, si, so):
     for i in range(2, len(si)):
         if si[i] < so[i]:
             assert so[i] % si[i] == 0
-            v = T.extra_ops.repeat(v, so[i] / si[i], i)
+            v = T.extra_ops.repeat(v, so[i] // si[i], i)
 
     # Increase feature maps.
     if si[1] < so[1]:

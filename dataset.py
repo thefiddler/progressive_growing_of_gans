@@ -30,7 +30,7 @@ class Dataset:
         self.h5_file = h5py.File(h5_path, 'r')
         self.resolution = resolution
         if self.resolution is None:
-            self.resolution = max(value.shape[2] for key, value in self.h5_file.iteritems() if key.startswith('data'))
+            self.resolution = max(value.shape[2] for key, value in self.h5_file.items() if key.startswith('data'))
 
         # Initialize LODs.
         self.resolution_log2 = int(np.floor(np.log2(self.resolution)))
@@ -54,11 +54,11 @@ class Dataset:
         self.prefetch_images = max(prefetch_images, 2)
         self.max_gb_to_load_right_away = max_gb_to_load_right_away
         min_order_size = self.prefetch_images * 4
-        order_size = self.shape[0] * ((min_order_size - 1) / self.shape[0] + 1)
+        order_size = np.int32(self.shape[0] * ((min_order_size - 1) / self.shape[0] + 1))
         self.order = np.arange(order_size) % self.shape[0]
         if shuffle:
             np.random.shuffle(self.order)
-            self.reshuffle_window = min(self.order.size / 2, self.order.size - self.prefetch_images * 2 - 1)
+            self.reshuffle_window = np.int32(min(self.order.size / 2, self.order.size - self.prefetch_images * 2 - 1))
         else:
             self.reshuffle_window = 1
         self.queue = queue.Queue(self.prefetch_images)
@@ -96,6 +96,7 @@ class Dataset:
 
     def get_random_minibatch(self, minibatch_size, lod=0, shrink_based_on_lod=False, labels=False):
         assert minibatch_size >= 1
+        minibatch_size = np.int32(minibatch_size)
         lod = np.clip(float(lod), 0.0, float(self.resolution_log2))
         lod_int = int(np.floor(lod))
 
