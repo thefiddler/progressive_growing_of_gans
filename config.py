@@ -97,9 +97,12 @@ loss = dict(                                # Loss function:
 
 #----------------------------------------------------------------------------
 # Configuration overrides for individual experiments.
+if 1:
+    run_desc = 'custom-test'
+    dataset = dict(h5_path='/data/gan/dataset.h5', resolution=1024, max_labels=0, mirror_augment=True, max_images=500)
 
 # Section 6.3: "High-resolution image generation using CelebA-HQ"
-if 1:
+if 0:
     run_desc = 'celeb-hq-1024x1024'
     dataset = dict(h5_path='celeb-hq-1024x1024.h5', resolution=1024, max_labels=0, mirror_augment=True, max_images=30000)
 
@@ -109,7 +112,7 @@ if 0:
                   'chair', 'churchoutdoor', 'classroom', 'conferenceroom', 'cow', 'diningroom', 'diningtable', 'dog', 'horse', 'kitchen',
                   'livingroom', 'motorbike', 'person', 'pottedplant', 'restaurant', 'sheep', 'sofa', 'tower', 'train', 'tvmonitor']
     category_idx = 0
-    
+
     name = categories[category_idx]
     if name == 'bedroom' or name == 'dog':
         run_desc = 'lsun-%s-256x256' % name
@@ -119,7 +122,7 @@ if 0:
         run_desc = 'lsun-%s-256x256-100k' % name
         h5_path = 'lsun-%s-256x256-100k.h5' % name
         mirror_augment = True
-        
+
     dataset = dict(h5_path=h5_path, resolution=256, max_labels=0, mirror_augment=mirror_augment)
     train.update(lod_training_kimg=800, lod_transition_kimg=800, total_kimg=20000, minibatch_overrides={})
     G.update(fmap_base=4096)
