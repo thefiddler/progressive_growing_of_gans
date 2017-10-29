@@ -14,7 +14,7 @@ import types
 import datetime
 from six.moves import cPickle
 import numpy as np
-from collections import OrderedDict 
+from collections import OrderedDict
 import PIL.Image
 
 #----------------------------------------------------------------------------
@@ -49,7 +49,7 @@ def create_image_grid(images, grid_size=None):
         grid_h = max((num - 1) / grid_w + 1, 1)
 
     grid = np.zeros(list(images.shape[1:-2]) + [grid_h * img_h, grid_w * img_w], dtype=images.dtype)
-    for idx in xrange(num):
+    for idx in range(num):
         x = (idx % grid_w) * img_w
         y = (idx / grid_w) * img_h
         grid[..., y : y + img_h, x : x + img_w] = images[idx]
@@ -127,7 +127,7 @@ class TeeOutputStream(object):
     def __init__(self, child_streams, autoflush=False):
         self.child_streams = child_streams
         self.autoflush = autoflush
- 
+
     def write(self, data):
         for stream in self.child_streams:
             stream.write(data)
@@ -283,5 +283,5 @@ def locate_network_pkl(result_subdir, snapshot=None):
         except ValueError: pass
         except IndexError: pass
     raise IOError('Cannot locate network pkl for snapshot', snapshot)
-    
+
 #----------------------------------------------------------------------------

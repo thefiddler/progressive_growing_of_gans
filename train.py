@@ -139,10 +139,10 @@ def train_gan(
         snapshot_fake_latents = random_latents(W*H, G.input_shape)
         snapshot_fake_labels = np.zeros((W*H, W), dtype=training_set.labels.dtype)
         example_real_images = np.zeros((W*H,) + training_set.shape[1:], dtype=training_set.dtype)
-        for x in xrange(W):
+        for x in range(W):
             snapshot_fake_labels[x::W, x] = 1.0
             indices = np.arange(training_set.shape[0])[training_set.labels[:,x] != 0]
-            for y in xrange(H):
+            for y in range(H):
                 example_real_images[x + y * W] = training_set.h5_lods[0][np.random.choice(indices)]
     else:
         raise ValueError('Invalid image_grid_type', image_grid_type)
@@ -260,7 +260,7 @@ def train_gan(
             cur_nimg += minibatch_size
             tick_train_out.append(mb_train_out)
         else:
-            for idx in xrange(D_training_repeats):
+            for idx in range(D_training_repeats):
                 mb_reals, mb_labels = training_set.get_random_minibatch(minibatch_size, lod=cur_lod, shrink_based_on_lod=True, labels=True)
                 mb_train_out = D_train_fn(mb_reals, mb_labels, random_latents(minibatch_size, G.input_shape), random_labels(minibatch_size, training_set))
                 cur_nimg += minibatch_size
@@ -393,7 +393,7 @@ def imgapi_generate_batch(net, latents, labels, minibatch_size=16, convert_to_ui
     assert latents.shape[0] == labels.shape[0]
     dtype = np.uint8 if convert_to_uint8 else np.float32
     images = np.zeros((latents.shape[0],) + net.G.output_shape[1:], dtype=dtype)
-    for begin in xrange(0, latents.shape[0], minibatch_size):
+    for begin in range(0, latents.shape[0], minibatch_size):
         end = min(begin + minibatch_size, latents.shape[0])
         tmp = net.gen_fn(latents[begin:end], labels[begin:end])
         if convert_to_uint8:
@@ -526,14 +526,14 @@ def calc_sliced_wasserstein_scores(
     resolution_min = min(resolution_min, resolution_full)
     resolution_max = min(resolution_max, resolution_full)
     base_lod = int(np.log2(resolution_full)) - int(np.log2(resolution_max))
-    resolutions = [2**i for i in xrange(int(np.log2(resolution_max)), int(np.log2(resolution_min)) - 1, -1)]
+    resolutions = [2**i for i in range(int(np.log2(resolution_max)), int(np.log2(resolution_min)) - 1, -1)]
 
     # Collect descriptors for reals.
     print('Extracting descriptors for reals...', end=' ')
     time_begin = time.time()
     desc_real = [[] for res in resolutions]
     desc_test = [[] for res in resolutions]
-    for minibatch_begin in xrange(0, num_images, minibatch_size):
+    for minibatch_begin in range(0, num_images, minibatch_size):
         minibatch = training_set.get_random_minibatch(minibatch_size, lod=base_lod)
         for lod, level in enumerate(sliced_wasserstein.generate_laplacian_pyramid(minibatch, len(resolutions))):
             desc_real[lod].append(sliced_wasserstein.get_descriptors_for_minibatch(level, nhood_size, nhoods_per_image))
@@ -573,7 +573,7 @@ def calc_sliced_wasserstein_scores(
 
         # Extract descriptors for generated images.
         desc_fake = [[] for res in resolutions]
-        for minibatch_begin in xrange(0, num_images, minibatch_size):
+        for minibatch_begin in range(0, num_images, minibatch_size):
             latents = net.example_latents[minibatch_begin : minibatch_begin + minibatch_size]
             labels = net.example_labels[minibatch_begin : minibatch_begin + minibatch_size]
             minibatch = imgapi_generate_batch(net, latents, labels, minibatch_size=minibatch_size, convert_to_uint8=True)

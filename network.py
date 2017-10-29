@@ -57,7 +57,7 @@ class Network(object):
         self.output_shape       = () # For first output layer.
         #self.arbitrary_field   = ...# Arbitrary fields returned by the build func.
         self.__dict__.update(self._call_build_func(globals()))
-        self._call_build_func_from_src() # Make sure that pickle import will work.
+        # self._call_build_func_from_src() # Make sure that pickle import will work.
 
     def eval(self, *inputs, **kwargs): # eval(input) => output --OR-- eval(primary_input, secondary_input, ...) => primary_output, secondary_output, ...
         ignore_unused_inputs = kwargs.pop('ignore_unused_inputs', False)
@@ -81,7 +81,7 @@ class Network(object):
         combo_inputs = [T.concatenate(spliced_input, axis=0) for spliced_input in zip(*input_lists)]
         combo_outputs = self.eval(*combo_inputs, **kwargs)
         combo_outputs = combo_outputs if isinstance(combo_outputs, tuple) else [combo_outputs]
-        output_ranges = [sum(input_lists[j][0].shape[0] for j in xrange(i)) for i in xrange(len(input_lists))]
+        output_ranges = [sum(input_lists[j][0].shape[0] for j in range(i)) for i in range(len(input_lists))]
         output_ranges = [(begin, begin + input_list[0].shape[0]) for input_list, begin in zip(input_lists, output_ranges)]
         spliced_outputs = [[combo_output[begin : end] for begin, end in output_ranges] for combo_output in combo_outputs]
         output_lists = [outputs[0] if len(outputs) == 1 else outputs for outputs in zip(*spliced_outputs)]
@@ -114,13 +114,13 @@ class Network(object):
         layer_map = {layer: copy.copy(layer) for layer in lasagne.layers.get_all_layers(net.output_layers)}
         net.input_layers = [layer_map[layer] for layer in net.input_layers]
         net.output_layers = [layer_map[layer] for layer in net.output_layers]
-        for layer in layer_map.itervalues():
+        for layer in layer_map.values():
             if hasattr(layer, 'input_layer'): layer.input_layer = layer_map[layer.input_layer]
             if hasattr(layer, 'input_layers'): layer.input_layers = [layer_map[input] for input in layer.input_layers]
 
         # Override trainable parameters with their smoothed versions.
         if explicit_updates: net.updates = []
-        for layer in layer_map.itervalues():
+        for layer in layer_map.values():
             orig_params = layer.params
             param_map = dict()
             for name, orig in layer.__dict__.items():
@@ -139,7 +139,7 @@ class Network(object):
                 except TypeError: # if orig is not hashable
                     pass
             layer.params = collections.OrderedDict()
-            for param, tags in orig_params.iteritems():
+            for param, tags in orig_params.items():
                 layer.params[param_map.get(param, param)] = copy.copy(tags)
         return net
 
@@ -227,7 +227,7 @@ def resize_activations(v, si, so):
         v = T.signal.pool.pool_2d(v, ws=ws, stride=ws, ignore_border=True, pad=(0,0), mode='average_exc_pad')
 
     # Extend spatial axes.
-    for i in xrange(2, len(si)):
+    for i in range(2, len(si)):
         if si[i] < so[i]:
             assert so[i] % si[i] == 0
             v = T.extra_ops.repeat(v, so[i] / si[i], i)
@@ -257,7 +257,7 @@ class LODSelectLayer(lasagne.layers.MergeLayer):
         hi = np.clip(int(np.ceil(max_lod - self.first_incoming_lod)), lo, len(v)-1) if max_lod is not None else len(v)-1
         t = self.cur_lod - self.first_incoming_lod
         r = v[hi]
-        for i in xrange(hi-1, lo-1, -1): # i = hi-1, hi-2, ..., lo
+        for i in range(hi-1, lo-1, -1): # i = hi-1, hi-2, ..., lo
             r = theano.ifelse.ifelse(T.lt(t, i+1), v[i] * ((i+1)-t) + v[i+1] * (t-i), r)
         if lo < hi:
             r = theano.ifelse.ifelse(T.le(t, lo), v[lo], r)
@@ -301,7 +301,7 @@ class WScaleLayer(lasagne.layers.Layer):
         return self.nonlinearity(v)
 
 #----------------------------------------------------------------------------
-# Minibatch stat concatenation layer. 
+# Minibatch stat concatenation layer.
 # - func is the function to use for the activations across minibatch
 # - averaging tells how much averaging to use ('all', 'spatial', 'none')
 
@@ -471,7 +471,7 @@ def G_paper(
     net = PN(BN(WS(Conv2DLayer(net, name='G1b', num_filters=nf(1), filter_size=3, pad=1,      nonlinearity=act, W=iact))))
     lods  = [net]
 
-    for I in xrange(2, R): # I = 2, 3, ..., R-1
+    for I in range(2, R): # I = 2, 3, ..., R-1
         net = Upscale2DLayer(net, name='G%dup' % I, scale_factor=2)
         net = PN(BN(WS(Conv2DLayer(net, name='G%da'  % I, num_filters=nf(I), filter_size=3, pad=1, nonlinearity=act, W=iact))))
         net = PN(BN(WS(Conv2DLayer(net, name='G%db'  % I, num_filters=nf(I), filter_size=3, pad=1, nonlinearity=act, W=iact))))
@@ -515,7 +515,7 @@ def D_paper(
     input_layer = InputLayer(name='Dimages', shape=[None, num_channels, 2**R, 2**R])
     net = WS(NINLayer(input_layer, name='D%dx' % (R-1), num_units=nf(R-1), nonlinearity=lrelu, W=ilrelu))
 
-    for I in xrange(R-1, 1, -1): # I = R-1, R-2, ..., 2
+    for I in range(R-1, 1, -1): # I = R-1, R-2, ..., 2
         net = LN(WS(Conv2DLayer     (GD(net),     name='D%db'   % I, num_filters=nf(I),   filter_size=3, pad=1, nonlinearity=lrelu, W=ilrelu)))
         net = LN(WS(Conv2DLayer     (GD(net),     name='D%da'   % I, num_filters=nf(I-1), filter_size=3, pad=1, nonlinearity=lrelu, W=ilrelu)))
         net =       Downscale2DLayer(net,         name='D%ddn'  % I, scale_factor=2)
@@ -578,7 +578,7 @@ def G_mnist_mode_recovery(
     net = PN(BN(WS(Conv2DLayer(net, name='G1a', num_filters=64, filter_size=4, pad='full', nonlinearity=vlrelu, W=irelu))))
 
     lods  = [net]
-    for I in xrange(2, R): # I = 2, 3, ..., R-1
+    for I in range(2, R): # I = 2, 3, ..., R-1
         net = Upscale2DLayer(net, name='G%dup' % I, scale_factor=2)
         net = PN(BN(WS(Conv2DLayer(net, name='G%da'  % I, num_filters=nf(I-1), filter_size=3, pad=1, nonlinearity=vlrelu, W=irelu))))
         lods += [net]
@@ -628,7 +628,7 @@ def D_mnist_mode_recovery(
     def BN(layer): return lasagne.layers.batch_norm(layer) if use_batchnorm else layer
 
     net = input_layer = InputLayer(name='Dimages', shape=[None, num_channels, 2**R, 2**R])
-    for I in xrange(R-1, 1, -1): # I = R-1, R-2, ..., 2     (i.e. 4,3,2)
+    for I in range(R-1, 1, -1): # I = R-1, R-2, ..., 2     (i.e. 4,3,2)
         net = BN(LN(WS(Conv2DLayer     (GD(net),     name='D%da'   % I, num_filters=nf(I-1), filter_size=3, pad=1, nonlinearity=lrelu, W=ilrelu))))
         net =       Downscale2DLayer(net,         name='D%ddn'  % I, scale_factor=2)
         if progressive:

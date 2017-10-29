@@ -99,7 +99,7 @@ loss = dict(                                # Loss function:
 # Configuration overrides for individual experiments.
 if 1:
     run_desc = 'custom-test'
-    dataset = dict(h5_path='/data/gan/dataset.h5', resolution=1024, max_labels=0, mirror_augment=True, max_images=500)
+    dataset = dict(h5_path='/data/gan/dataset.h5', resolution=1024, max_labels=0, mirror_augment=True)
 
 # Section 6.3: "High-resolution image generation using CelebA-HQ"
 if 0:

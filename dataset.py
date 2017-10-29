@@ -35,8 +35,8 @@ class Dataset:
         # Initialize LODs.
         self.resolution_log2 = int(np.floor(np.log2(self.resolution)))
         assert self.resolution == 2 ** self.resolution_log2
-        self.lod_resolutions = [2 ** i for i in xrange(self.resolution_log2, -1, -1)]
-        self.h5_lods = [self.h5_file['data%dx%d' % (r, r)] for r in self.lod_resolutions]
+        self.lod_resolutions = [2 ** i for i in range(self.resolution_log2, -1, -1)]
+        self.h5_lods = list([np.expand_dims(self.h5_file['data%dx%d' % (r, r)], 1) for r in self.lod_resolutions])[::-1]
 
         # Look up shapes and dtypes.
         self.shape = self.h5_lods[0].shape
@@ -44,6 +44,7 @@ class Dataset:
             self.shape = (min(self.shape[0], max_images),) + self.shape[1:]
         self.dtype = self.h5_lods[0].dtype
         self.lod_shapes = [(self.shape[0], self.shape[1], r, r) for r in self.lod_resolutions]
+
         assert min(self.shape) > 0
         assert all(lod.shape[1:] == shape[1:] for lod, shape in zip(self.h5_lods, self.lod_shapes))
         assert all(lod.dtype == self.dtype for lod in self.h5_lods)
@@ -116,7 +117,7 @@ class Dataset:
             self.thread.start()
 
         # Grab data from worker thread.
-        data = np.stack([self.queue.get() for i in xrange(minibatch_size)])
+        data = np.stack([self.queue.get() for i in range(np.int32(minibatch_size))])
 
         # Reshuffle indices.
         ivec = (np.arange(minibatch_size) + self.cur_pos) % self.order.size
