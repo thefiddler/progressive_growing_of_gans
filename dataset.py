@@ -136,7 +136,7 @@ class Dataset:
         # Apply fractional LOD.
         if lod != lod_int:
             n, c, h, w = data.shape
-            t = data.reshape(n, c, h/2, 2, w/2, 2).mean((3, 5)).repeat(2, 2).repeat(2, 3)
+            t = data.reshape(n, c, h//2, 2, w//2, 2).mean((3, 5)).repeat(2, 2).repeat(2, 3)
             data = (data + (t - data) * (lod - lod_int)).astype(self.dtype)
         if not shrink_based_on_lod and lod_int != 0:
             data = data.repeat(2 ** lod_int, 2).repeat(2 ** lod_int, 3)
