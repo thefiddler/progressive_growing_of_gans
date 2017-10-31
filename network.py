@@ -184,9 +184,12 @@ class Network(object):
 
     def _call_build_func_from_src(self):
         tmp_module = imp.new_module('network_tmp_module')
-        exec(self.build_module_src in tmp_module.__dict__)
+        d = dict(locals(), **globals())
+        exec(self.build_module_src, tmp_module.__dict__)
+        # exec(self.build_module_src in tmp_module.__dict__, d, d)
         globals()['tmp_modules'] = globals().get('tmp_modules', []) + [tmp_module] # Work around issues with GC.
-        return self._call_build_func(tmp_module.__dict__)
+        return self._call_build_func(d)
+        # return self._call_build_func(tmp_module.__dict__)
 
     def __getstate__(self): # Pickle export.
         return {
