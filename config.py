@@ -49,12 +49,12 @@ train = dict(                               # Training parameters:
     adam_beta2              = 0.99,         # \beta_2
     adam_epsilon            = 1e-8,         # \epsilon
     minibatch_default       = 16,           # Minibatch size for low resolutions.
-    minibatch_overrides     = {256:14, 512:6,  1024:3}, # Minibatch sizes for high resolutions.
+    minibatch_overrides     = {256:8, 512:4,  1024:2}, # Minibatch sizes for high resolutions.
     rampup_kimg             = 40,           # Learning rate rampup.
     rampdown_kimg           = 0,            # Learning rate rampdown.
     lod_initial_resolution  = 4,            # Network resolution at the beginning.
-    lod_training_kimg       = 600,          # Thousands of real images to show before doubling network resolution.
-    lod_transition_kimg     = 600,          # Thousands of real images to show when fading in new layers.
+    lod_training_kimg       = 50,           # Thousands of real images to show before doubling network resolution.
+    lod_transition_kimg     = 50,           # Thousands of real images to show when fading in new layers.
     total_kimg              = 15000,        # Thousands of real images to show in total.
     gdrop_coef              = 0.0,          # Do not inject multiplicative Gaussian noise in the discriminator.
 )
