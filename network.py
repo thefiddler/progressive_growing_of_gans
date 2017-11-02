@@ -26,6 +26,7 @@ from lasagne.layers import InputLayer, Conv2DLayer, DenseLayer, NINLayer
 from lasagne.layers import Upscale2DLayer, Pool2DLayer, GlobalPoolLayer, MaxPool2DLayer
 from lasagne.layers import ReshapeLayer, ElemwiseSumLayer, ConcatLayer, FlattenLayer
 from lasagne.layers import NonlinearityLayer, ScaleLayer
+from lasagne.layers import ElemwiseSumLayer
 
 linear,  ilinear  = lasagne.nonlinearities.linear,            lasagne.init.HeNormal(1.0)
 relu,    irelu    = lasagne.nonlinearities.rectify,           lasagne.init.HeNormal('relu')
