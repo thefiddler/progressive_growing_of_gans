@@ -470,14 +470,18 @@ def G_paper(
         net = ConcatLayer(name='Gina', incomings=[net, input_layers[-1]])
 
     net = ReshapeLayer(name='Ginb', incoming=net, shape=[[0], [1], 1, 1])
+    residual = net
     net = PN(BN(WS(Conv2DLayer(net, name='G1a', num_filters=nf(1), filter_size=4, pad='full', nonlinearity=act, W=iact))))
     net = PN(BN(WS(Conv2DLayer(net, name='G1b', num_filters=nf(1), filter_size=3, pad=1,      nonlinearity=act, W=iact))))
+    net = ElemwiseSumLayer([net, residual])
     lods  = [net]
 
     for I in range(2, R): # I = 2, 3, ..., R-1
         net = Upscale2DLayer(net, name='G%dup' % I, scale_factor=2)
+        residual = net
         net = PN(BN(WS(Conv2DLayer(net, name='G%da'  % I, num_filters=nf(I), filter_size=3, pad=1, nonlinearity=act, W=iact))))
         net = PN(BN(WS(Conv2DLayer(net, name='G%db'  % I, num_filters=nf(I), filter_size=3, pad=1, nonlinearity=act, W=iact))))
+        net = ElemwiseSumLayer([net, residual])
         lods += [net]
 
     lods = [WS(NINLayer(l, name='Glod%d' % i, num_units=num_channels, nonlinearity=linear, W=ilinear)) for i, l in enumerate(reversed(lods))]
